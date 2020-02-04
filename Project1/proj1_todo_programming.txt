@@ -1,0 +1,22 @@
+Project 1 Notes:
+
+programming tasks
+
+un-informed search strategies (BFS/DFS optimized & unoptimized) {
+
+* exercise 1: basic, benchmarking
+	-implement strategyDFS class to enable Depth First Search
+ 
+* exercise 2: optimizations
+	-modify State class to reduce less memory 
+
+}
+
+informed search strategies ( using heuristics) {
+
+* exercise 4: heuristics
+	- implement StrategyBestFirst class
+	- implement a heuristic function h(n)
+	(greedy & A* are eval functions f(n): f(n) = g(n) + h(n)
+	g(n) = cost of n, h(n) = approx. cost to goal from n) 
+}
