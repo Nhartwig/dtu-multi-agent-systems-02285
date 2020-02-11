@@ -11,7 +11,7 @@ from heuristic import AStar, WAStar, Greedy
 class SearchClient:
     def __init__(self, server_messages):
         self.initial_state = None
-        
+
         colors_re = re.compile(r'^[a-z]+:\s*[0-9A-Z](\s*,\s*[0-9A-Z])*\s*$')
         try:
             # Read lines for colors. There should be none of these in warmup levels.
@@ -19,13 +19,30 @@ class SearchClient:
             if colors_re.fullmatch(line) is not None:
                 print('Error, client does not support colors.', file=sys.stderr, flush=True)
                 sys.exit(1)
-            
-            # Read lines for level.
-            self.initial_state = State()
-            row = 0
+
+            linelist = []
             while line:
+                linelist.append(line)
+                line = server_messages.readline().rstrip()
+
+            max_row = len(linelist)
+            max_col = len(linelist[0])
+
+            State.MAX_ROW = max_row
+            State.MAX_COL = max_col
+
+
+            # Initialize empty arrays to size max row and max col for class-variables 'walls' and 'goals'
+            State.walls = [[False for _ in range(State.MAX_COL)] for _ in range(State.MAX_ROW)]
+            State.goals = [[None for _ in range(State.MAX_COL)] for _ in range(State.MAX_ROW)]
+
+            self.initial_state = State()
+
+            row = 0
+            # Read lines for level.
+            for line in linelist:
                 for col, char in enumerate(line):
-                    if char == '+': self.initial_state.walls[row][col] = True
+                    if char == '+': State.walls[row][col] = True
                     elif char in "0123456789":
                         if self.initial_state.agent_row is not None:
                             print('Error, encountered a second agent (client only supports one agent).', file=sys.stderr, flush=True)
@@ -33,7 +50,7 @@ class SearchClient:
                         self.initial_state.agent_row = row
                         self.initial_state.agent_col = col
                     elif char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ": self.initial_state.boxes[row][col] = char
-                    elif char in "abcdefghijklmnopqrstuvwxyz": self.initial_state.goals[row][col] = char
+                    elif char in "abcdefghijklmnopqrstuvwxyz": State.goals[row][col] = char
                     elif char == ' ':
                         # Free cell.
                         pass
@@ -41,7 +58,7 @@ class SearchClient:
                         print('Error, read invalid level character: {}'.format(char), file=sys.stderr, flush=True)
                         sys.exit(1)
                 row += 1
-                line = server_messages.readline().rstrip()
+
         except Exception as ex:
             print('Error parsing level: {}.'.format(repr(ex)), file=sys.stderr, flush=True)
             sys.exit(1)
@@ -55,7 +72,7 @@ class SearchClient:
             if iterations == 1000:
                 print(strategy.search_status(), file=sys.stderr, flush=True)
                 iterations = 0
-            
+
             if memory.get_usage() > memory.max_usage:
                 print('Maximum memory usage exceeded.', file=sys.stderr, flush=True)
                 return None
@@ -84,7 +101,7 @@ def main(strategy_str: 'str'):
     print('SearchClient initializing. I am sending this using the error output stream.', file=sys.stderr, flush=True)
     
     # Read level and create the initial state of the problem.
-    client = SearchClient(server_messages);
+    client = SearchClient(server_messages)
 
     strategy = None
     if strategy_str == 'bfs':
