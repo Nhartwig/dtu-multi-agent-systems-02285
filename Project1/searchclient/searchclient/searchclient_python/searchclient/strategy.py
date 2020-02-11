@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections import deque
 from time import perf_counter
+import heapq
 
 import memory
 
@@ -104,22 +105,36 @@ class StrategyBestFirst(Strategy):
     def __init__(self, heuristic: 'Heuristic'):
         super().__init__()
         self.heuristic = heuristic
-        raise NotImplementedError
+        self.frontier = []
+        self.frontier_set = set()
 
     def get_and_remove_leaf(self) -> 'State':
-        raise NotImplementedError
+        leaf = heapq.heappop(self.frontier)
+        self.frontier_set.remove(leaf.state)
+        return leaf.state
 
     def add_to_frontier(self, state: 'State'):
-        raise NotImplementedError
+        fObject = FrontierObject(state,self.heuristic.f(state))
+        heapq.heappush(self.frontier,fObject)
+        self.frontier_set.add(state)
 
     def in_frontier(self, state: 'State') -> 'bool':
-        raise NotImplementedError
+        return state in self.frontier_set
 
     def frontier_count(self) -> 'int':
-        raise NotImplementedError
+        return len(self.frontier)
 
     def frontier_empty(self) -> 'bool':
-        raise NotImplementedError
+        return len(self.frontier) == 0
 
     def __repr__(self):
         return 'Best-first Search using {}'.format(self.heuristic)
+
+class FrontierObject:
+    def __init__(self, state: 'State', f: "int"):
+        super().__init__()
+        self.state = state
+        self.f = f
+
+    def __lt__(self, other):
+        return self.f < other.f
