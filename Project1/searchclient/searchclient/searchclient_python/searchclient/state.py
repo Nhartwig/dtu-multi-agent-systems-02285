@@ -26,8 +26,8 @@ class State:
         
         Note: The state should be considered immutable after it has been hashed, e.g. added to a dictionary!
         '''
-        State.MAX_ROW = max_row
-        State.MAX_COL = max_col
+        State.MAX_ROW = 7
+        State.MAX_COL = 19
 
         self._hash = None
         if copy is None:
@@ -68,8 +68,8 @@ class State:
             
             if action.action_type is ActionType.Move:
                 if self.is_free(new_agent_row, new_agent_col):
-                    child = State(self.MAX_ROW, self.MAX_COL)
-                    print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
+                    child = State(7, 19)
+                    #print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
                     child.agent_row = new_agent_row
                     child.agent_col = new_agent_col
                     child.parent = self
@@ -81,8 +81,8 @@ class State:
                     new_box_row = new_agent_row + action.box_dir.d_row
                     new_box_col = new_agent_col + action.box_dir.d_col
                     if self.is_free(new_box_row, new_box_col):
-                        child = State(self.MAX_ROW, self.MAX_COL)
-                        print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
+                        child = State(7, 19)
+                        #print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
                         child.agent_row = new_agent_row
                         child.agent_col = new_agent_col
                         child.boxes[new_box_row][new_box_col] = self.boxes[new_agent_row][new_agent_col]
@@ -96,8 +96,8 @@ class State:
                     box_row = self.agent_row + action.box_dir.d_row
                     box_col = self.agent_col + action.box_dir.d_col
                     if self.box_at(box_row, box_col):
-                        child = State(self.MAX_ROW, self.MAX_COL)
-                        print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
+                        child = State(7, 19)
+                        #print(str(child.MAX_ROW) +" "+str(child.MAX_COL))
                         child.agent_row = new_agent_row
                         child.agent_col = new_agent_col
                         child.boxes[self.agent_row][self.agent_col] = self.boxes[box_row][box_col]
