@@ -1,7 +1,6 @@
 import argparse
 import re
 import sys
-import copy
 
 import memory
 from state import State
@@ -29,13 +28,21 @@ class SearchClient:
             max_row = len(linelist)
             max_col = len(linelist[0])
 
-            self.initial_state = State(max_row, max_col)
+            State.MAX_ROW = max_row
+            State.MAX_COL = max_col
+
+
+            # Initialize empty arrays to size max row and max col for class-variables 'walls' and 'goals'
+            State.walls = [[False for _ in range(State.MAX_COL)] for _ in range(State.MAX_ROW)]
+            State.goals = [[None for _ in range(State.MAX_COL)] for _ in range(State.MAX_ROW)]
+
+            self.initial_state = State()
 
             row = 0
             # Read lines for level.
             for line in linelist:
                 for col, char in enumerate(line):
-                    if char == '+': self.initial_state.walls[row][col] = True
+                    if char == '+': State.walls[row][col] = True
                     elif char in "0123456789":
                         if self.initial_state.agent_row is not None:
                             print('Error, encountered a second agent (client only supports one agent).', file=sys.stderr, flush=True)
@@ -43,7 +50,7 @@ class SearchClient:
                         self.initial_state.agent_row = row
                         self.initial_state.agent_col = col
                     elif char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ": self.initial_state.boxes[row][col] = char
-                    elif char in "abcdefghijklmnopqrstuvwxyz": self.initial_state.goals[row][col] = char
+                    elif char in "abcdefghijklmnopqrstuvwxyz": State.goals[row][col] = char
                     elif char == ' ':
                         # Free cell.
                         pass
