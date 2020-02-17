@@ -12,9 +12,10 @@ class Heuristic(metaclass=ABCMeta):
                     self.goals.append((i,j))
 
     def h(self, state: 'State') -> 'int':
-        return self.h1(state)
+        # return self.h1(state)
         # return self.h2(state)
         # return self.h3(state)
+        return self.h4(state)
 
     def h1(self, state: 'State') -> 'int':
         goals = self.goals.copy()
@@ -24,7 +25,6 @@ class Heuristic(metaclass=ABCMeta):
             indexI = goal[0]
             indexJ = goal[1]
             cost = cost + abs(state.agent_row - indexI) + abs(state.agent_col - indexJ)
-            goals.append((indexI,indexJ))
         return cost
 
     def h2(self, state: 'State') -> 'int':
@@ -36,12 +36,49 @@ class Heuristic(metaclass=ABCMeta):
             indexJ = goal[1]
             if state.boxes[indexI][indexJ] is not None and state.boxes[indexI][indexJ].lower() != state.goals[indexI][indexJ] or state.boxes[indexI][indexJ] is None:
                 cost = cost + 1
-            goals.append((indexI,indexJ))
         return cost
 
     def h3(self, state: 'State') -> 'int':
         goals = self.goals.copy()
         cost = 0
+        for _ in range(len(goals)):
+            goal = goals.popleft()
+            indexI = goal[0]
+            indexJ = goal[1]
+            # if state.boxes[indexI][indexJ] is not None and state.boxes[indexI][indexJ].lower() == state.goals[indexI][indexJ]:
+            #     cost = cost - 1
+            for i in range(State.MAX_ROW):
+                for j in range(State.MAX_COL):
+                    if state.boxes[i][j] is not None and state.boxes[i][j].lower() == state.goals[indexI][indexJ]:
+                        cost = cost + abs(i - indexI) + abs(j - indexJ)
+        return cost
+
+    def h4(self, state: 'State') -> 'int':
+        goals = self.goals.copy()
+        cost = 0
+        maxCost = 0
+        for _ in range(len(goals)):
+            cost = 0;
+            goal = goals.pop()
+            indexI = goal[0]
+            indexJ = goal[1]
+            for i in range(State.MAX_ROW):
+                for j in range(State.MAX_COL):
+                    if state.boxes[i][j] is not None and state.boxes[i][j].lower() == state.goals[indexI][indexJ]:
+                        cost = cost + abs(i - indexI) + abs(j - indexJ)
+            if cost > maxCost:
+                maxCost = cost;
+        return maxCost
+
+    def h5(self, state: 'State') -> 'int':
+        goals = self.goals.copy()
+        cost = 0
+        for _ in range(len(goals)):
+            goal = goals.popleft()
+            indexI = goal[0]
+            indexJ = goal[1]
+            if (state.boxes[indexI][indexJ] is not None and state.boxes[indexI][indexJ].lower() != state.goals[indexI][indexJ]) or state.boxes[indexI][indexJ] is None:
+                goals.append((indexI,indexJ))
         for _ in range(len(goals)):
             goal = goals.pop()
             indexI = goal[0]
@@ -50,7 +87,22 @@ class Heuristic(metaclass=ABCMeta):
                 for j in range(State.MAX_COL):
                     if state.boxes[i][j] is not None and state.boxes[i][j].lower() == state.goals[indexI][indexJ]:
                         cost = cost + abs(i - indexI) + abs(j - indexJ)
-            goals.append((indexI,indexJ))
+        return cost
+
+    def h6(self, state: 'State') -> 'int':
+        goals = self.goals.copy()
+        cost = 0
+        agentToBoxMin = 1000
+        for _ in range(len(goals)):
+            goal = goals.pop()
+            indexI = goal[0]
+            indexJ = goal[1]
+            for j in range(State.MAX_COL):
+                if agentToBoxMin < abs(j - state.agent_col) + abs(state.agent_row - indexI) and j!=indexJ:
+                    agentToBoxMin = abs(j - state.agent_col) + abs(state.agent_row - indexI)
+                if state.boxes[indexI][j] is not None and j != indexJ:
+                    cost = cost + abs(j - indexJ)
+        cost = cost + agentToBoxMin
         return cost
 
     @abstractmethod
