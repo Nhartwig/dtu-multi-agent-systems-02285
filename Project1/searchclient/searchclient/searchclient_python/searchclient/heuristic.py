@@ -15,7 +15,9 @@ class Heuristic(metaclass=ABCMeta):
         # return self.h1(state)
         # return self.h2(state)
         # return self.h3(state)
-        return self.h4(state)
+        # return self.h4(state)
+        # return self.h5(state)
+        return self.h6(state)
 
     def h1(self, state: 'State') -> 'int':
         goals = self.goals.copy()
@@ -92,17 +94,14 @@ class Heuristic(metaclass=ABCMeta):
     def h6(self, state: 'State') -> 'int':
         goals = self.goals.copy()
         cost = 0
-        agentToBoxMin = 1000
+        count = 0
         for _ in range(len(goals)):
             goal = goals.pop()
             indexI = goal[0]
             indexJ = goal[1]
             for j in range(State.MAX_COL):
-                if agentToBoxMin < abs(j - state.agent_col) + abs(state.agent_row - indexI) and j!=indexJ:
-                    agentToBoxMin = abs(j - state.agent_col) + abs(state.agent_row - indexI)
                 if state.boxes[indexI][j] is not None and j != indexJ:
                     cost = cost + abs(j - indexJ)
-        cost = cost + agentToBoxMin
         return cost
 
     @abstractmethod
